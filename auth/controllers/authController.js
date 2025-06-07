@@ -19,6 +19,6 @@ exports.login = (req, res) => {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  const token = jwt.sign({ username }, "your-secret-key", { expiresIn: "1h" });
+  const token = jwt.sign({ username }, "mySuperSecretKey", { expiresIn: "1h" });
   res.json({ token });
 };
