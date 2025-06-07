@@ -1,14 +1,13 @@
 const express = require('express');
-const { register, login } = require('../controllers/authController');
+const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 
-const router = express.Router();
+// Existing register/login routes here
+// e.g. router.post('/register', ...), router.post('/login', ...)
 
-router.post('/register', register);
-router.post('/login', login);
+// Add protected route for profile
 router.get('/profile', authMiddleware, (req, res) => {
   res.json({ user: req.user });
 });
 
 module.exports = router;
-
