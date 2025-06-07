@@ -11,3 +11,12 @@ Deploy to AWS ECS or EKS
 Use GitHub Actions Matrix builds (for multiple microservices)
 
 Integrate with GitHub Actions OIDC + AWS AssumeRole (no AWS keys!)
+
+
+Microservices
+
+Frontend – React-based SPA
+
+Product API – Express.js + PostgreSQL
+
+Auth API – Express.js + JWT + PostgreSQL
