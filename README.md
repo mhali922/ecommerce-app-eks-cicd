@@ -20,3 +20,9 @@ Frontend – React-based SPA
 Product API – Express.js + PostgreSQL
 
 Auth API – Express.js + JWT + PostgreSQL
+
+![image](https://github.com/user-attachments/assets/33ae8a93-0ef8-45d8-973a-5e5fe764a048)
+
+
+![image](https://github.com/user-attachments/assets/39c568b6-095f-488e-ab55-78a31e876f7d)
+
