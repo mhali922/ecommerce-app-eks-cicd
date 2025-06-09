@@ -123,3 +123,7 @@ jobs:
               -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest \
               -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:${{ github.sha }} .
           fi
+          
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest
