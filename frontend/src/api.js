@@ -1,8 +1,20 @@
-import axios from "axios";
+//const API_BASE = 'http://localhost:3002/api/auth';
+export const API_BASE = import.meta.env.VITE_AUTH_API_URL;
 
-const API_BASE_URL = process.env.REACT_APP_PRODUCT_API_URL || "http://localhost:3001";
+export const register = async (username, password) => {
+  const res = await fetch(`${API_BASE}/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
+  return res.json();
+};
 
-export const fetchProducts = async () => {
-  const response = await axios.get(`${API_BASE_URL}/products`);
-  return response.data;
+export const login = async (username, password) => {
+  const res = await fetch(`${API_BASE}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
+  return res.json();
 };

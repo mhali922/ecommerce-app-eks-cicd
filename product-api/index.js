@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3002;
+const PORT = 3001;
 
 // Enable CORS so frontend (localhost:3000) can call the backend (localhost:3002)
 app.use(cors());

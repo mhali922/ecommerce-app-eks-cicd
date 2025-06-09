@@ -88,10 +88,8 @@ jobs:
         if: matrix.service == 'frontend'
         run: npm run build
   
-  docker-build:
-    name: Build and Push - ${{ matrix.service }}
+  docker-build-push:
     runs-on: ubuntu-latest
-    needs: test
     strategy:
       matrix:
         service: [frontend, auth, product-api]
@@ -100,26 +98,25 @@ jobs:
         working-directory: ${{ matrix.service }}
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: List Dockerfile for debug
         run: pwd && ls -l
-        
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest \
-                      -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:${{ github.sha }} .
-
-
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:${{ github.sha }}
+          if [[ "${{ matrix.service }}" == "frontend" ]]; then
+            docker build \
+              --build-arg VITE_AUTH_API_URL=http://auth:3001/api/auth \
+              --build-arg VITE_PRODUCT_API_URL=http://product-api:3002 \
+              -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest \
+              -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:${{ github.sha }} .
+          else
+            docker build \
+              -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest \
+              -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:${{ github.sha }} .
+          fi

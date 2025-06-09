@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3002/api/auth/login';
+const API_BASE = 'http://localhost:3002/api/auth';
 
 export const register = async (username, password) => {
   const res = await fetch(`${API_BASE}/register`, {
@@ -17,4 +17,3 @@ export const login = async (username, password) => {
   });
   return res.json();
 };
-

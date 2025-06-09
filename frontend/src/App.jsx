@@ -1,29 +1,40 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+
+// Material UI imports
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 
 function App() {
   const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [registerForm, setRegisterForm] = useState({ username: '', password: '' });
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [profile, setProfile] = useState(null);
 
-  // Fetch products (unauthenticated)
   useEffect(() => {
-    fetch('http://localhost:3001/products') // make sure this is your product API
+    fetch('http://localhost:3001/products')
       .then(res => res.json())
       .then(data => setProducts(data));
   }, []);
 
-  // Fetch profile if token exists
   useEffect(() => {
     if (!token) return;
 
     fetch('http://localhost:3002/api/auth/profile', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.ok ? res.json() : Promise.reject())
-      .then(data => setProfile(data.user))
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch profile');
+        return res.json();
+      })
+      .then(data => setProfile(data.user || data))
       .catch(() => setProfile(null));
   }, [token]);
 
@@ -32,78 +43,145 @@ function App() {
     await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify(registerForm),
     });
     alert('Registered! You can now login.');
   };
 
- const handleLogin = async (e) => {
-  e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginForm),
+      });
 
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Login failed');
 
-    const data = await res.json(); // ⬅️ Only one call to res.json()
-
-    if (!res.ok) {
-      throw new Error(data.message || 'Login failed');
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        setToken(data.token);
+        alert('Login successful!');
+      }
+    } catch (err) {
+      alert(err.message);
     }
+  };
 
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-      alert('Login successful!');
-      // Redirect or update UI
-    } else {
-      alert('Invalid credentials');
-    }
-  } catch (err) {
-    console.error('Login error:', err);
-    alert(err.message);
-  }
-};
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken('');
+    setProfile(null);
+  };
 
   return (
-    <div>
-      <h1>E-Commerce App</h1>
+    <Router>
+      <AppBar position="static" sx={{ mb: 4 }}>
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            E-Commerce App
+          </Typography>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Button color="inherit" component={Link} to="/">Products</Button>
+            {!token ? (
+              <>
+                <Button color="inherit" component={Link} to="/login">Login</Button>
+                <Button color="inherit" component={Link} to="/register">Register</Button>
+              </>
+            ) : (
+              <>
+                <Typography>Welcome, {profile?.username}</Typography>
+                <Button color="inherit" onClick={handleLogout}>Logout</Button>
+              </>
+            )}
+          </Stack>
+        </Toolbar>
+      </AppBar>
 
-      {!token ? (
-        <div>
-          <h2>Register</h2>
-          <form onSubmit={handleRegister}>
-            <input type="text" placeholder="Username" onChange={e => setForm({ ...form, username: e.target.value })} />
-            <input type="password" placeholder="Password" onChange={e => setForm({ ...form, password: e.target.value })} />
-            <button type="submit">Register</button>
-          </form>
+      <Container maxWidth="md">
+        <Routes>
+          <Route path="/" element={<ProductList products={products} />} />
+          <Route path="/login" element={
+            token ? <Navigate to="/" /> : (
+              <LoginForm form={loginForm} setForm={setLoginForm} onSubmit={handleLogin} />
+            )
+          } />
+          <Route path="/register" element={
+            token ? <Navigate to="/" /> : (
+              <RegisterForm form={registerForm} setForm={setRegisterForm} onSubmit={handleRegister} />
+            )
+          } />
+        </Routes>
+      </Container>
+    </Router>
+  );
+}
 
-          <h2>Login</h2>
-          <form onSubmit={handleLogin}>
-            <input type="text" placeholder="Username" onChange={e => setForm({ ...form, username: e.target.value })} />
-            <input type="password" placeholder="Password" onChange={e => setForm({ ...form, password: e.target.value })} />
-            <button type="submit">Login</button>
-          </form>
-        </div>
-      ) : (
-        <div>
-          <h2>Welcome, {profile?.username}</h2>
-          <button onClick={() => {
-            localStorage.removeItem('token');
-            setToken('');
-            setProfile(null);
-          }}>Logout</button>
-        </div>
-      )}
-
-      <h2>Products</h2>
+function ProductList({ products }) {
+  return (
+    <Box>
+      <Typography variant="h4" gutterBottom>Products</Typography>
       {products.map(p => (
-        <div key={p.id}>
-          <strong>{p.name}</strong>: ${p.price}
-        </div>
+        <Box key={p.id} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
+          <Typography variant="h6">{p.name}</Typography>
+          <Typography>${p.price}</Typography>
+        </Box>
       ))}
-    </div>
+    </Box>
+  );
+}
+
+function LoginForm({ form, setForm, onSubmit }) {
+  return (
+    <Box component="form" onSubmit={onSubmit} sx={{ maxWidth: 400, mx: 'auto' }}>
+      <Typography variant="h4" gutterBottom>Login</Typography>
+      <TextField
+        label="Username"
+        fullWidth
+        margin="normal"
+        value={form.username}
+        onChange={e => setForm({ ...form, username: e.target.value })}
+        required
+      />
+      <TextField
+        label="Password"
+        type="password"
+        fullWidth
+        margin="normal"
+        value={form.password}
+        onChange={e => setForm({ ...form, password: e.target.value })}
+        required
+      />
+      <Button variant="contained" type="submit" fullWidth sx={{ mt: 2 }}>Login</Button>
+    </Box>
+  );
+}
+
+function RegisterForm({ form, setForm, onSubmit }) {
+  return (
+    <Box component="form" onSubmit={onSubmit} sx={{ maxWidth: 400, mx: 'auto' }}>
+      <Typography variant="h4" gutterBottom>Register</Typography>
+      <TextField
+        label="Username"
+        fullWidth
+        margin="normal"
+        value={form.username}
+        onChange={e => setForm({ ...form, username: e.target.value })}
+        required
+      />
+      <TextField
+        label="Password"
+        type="password"
+        fullWidth
+        margin="normal"
+        value={form.password}
+        onChange={e => setForm({ ...form, password: e.target.value })}
+        required
+      />
+      <Button variant="contained" type="submit" fullWidth sx={{ mt: 2 }}>Register</Button>
+    </Box>
   );
 }
 
