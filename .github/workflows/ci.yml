@@ -96,6 +96,9 @@ jobs:
     defaults:
       run:
         working-directory: ${{ matrix.service }}
+    env:
+       VITE_AUTH_API_URL: ${{ secrets.VITE_AUTH_API_URL }}
+       VITE_PRODUCT_API_URL: ${{ secrets.VITE_PRODUCT_API_URL }}
 
     steps:
       - name: Checkout code
@@ -111,8 +114,8 @@ jobs:
         run: |
           if [[ "${{ matrix.service }}" == "frontend" ]]; then
             docker build \
-              --build-arg VITE_AUTH_API_URL=http://auth:3001/api/auth \
-              --build-arg VITE_PRODUCT_API_URL=http://product-api:3002 \
+              --build-arg VITE_AUTH_API_URL=${VITE_AUTH_API_URL} \
+              --build-arg VITE_PRODUCT_API_URL=${VITE_PRODUCT_API_URL} \
               -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest \
               -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:${{ github.sha }} .
           else
