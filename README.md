@@ -45,8 +45,12 @@ Frontend -
 -----------------------------------
 CI Part to dockerize the frontend, auth and product-api. 
 
-So far not deployed to any EC2 or EKS Cluster only building the docker image and pushing to DockerHub.
+![image](https://github.com/user-attachments/assets/284b10a8-59a2-4cb6-884c-2aee1469a935)
 
-![image](https://github.com/user-attachments/assets/8dc40cff-e24f-4463-8c34-7f1b4bd1024e)
+Pushed to DockerHub:
+
+![image](https://github.com/user-attachments/assets/68f947b7-163f-4559-9ca6-5f011c7445f4)
+
+
 
 
