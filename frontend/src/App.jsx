@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { login, register, getProfile } from './api/auth';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 
 // Material UI imports for the better page
