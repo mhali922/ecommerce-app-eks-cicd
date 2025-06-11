@@ -10,8 +10,8 @@ import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-const authApiBase = import.meta.env.VITE_AUTH_API_URL;
-const productApiBase = import.meta.env.VITE_PRODUCT_API_URL
+const authApiBase = process.env.REACT_APP_AUTH_API_URL;
+const productApiBase = process.env.REACT_APP_PRODUCT_API_URL;
 
 function App() {
   const [products, setProducts] = useState([]);
