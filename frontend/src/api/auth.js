@@ -1,5 +1,5 @@
 //const API_BASE = 'http://localhost:3002/api/auth';
-const API_BASE = import.meta.env.VITE_AUTH_API_URL;
+const API_BASE = import.process.env.REACT_APP_AUTH_API_URL;
 
 export const register = async (username, password) => {
   const res = await fetch(`${API_BASE}/register`, {
