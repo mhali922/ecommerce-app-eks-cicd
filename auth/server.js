@@ -7,10 +7,11 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Enable CORS for frontend on localhost:3000
+// ✅ Use environment variable for CORS origin
+const allowedOrigin = process.env.FRONTEND_ORIGIN || 'http://localhost:3000';
+
 app.use(cors({
-//origin: 'http://localhost:3000',
-  origin: 'http://3.83.129.140:3000',
+  origin: allowedOrigin,
   credentials: true,
 }));
 
