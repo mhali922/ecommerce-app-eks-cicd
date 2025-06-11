@@ -10,6 +10,8 @@ import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+const authApiBase = import.meta.env.VITE_AUTH_API_URL;
+const productApiBase = import.meta.env.VITE_PRODUCT_API_URL
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -19,7 +21,8 @@ function App() {
   const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/products')
+    //fetch('http://localhost:3001/products')
+    fetch(`${productApiBase}/products`)
       .then(res => res.json())
       .then(data => setProducts(data));
   }, []);
@@ -27,7 +30,8 @@ function App() {
   useEffect(() => {
     if (!token) return;
 
-    fetch('http://localhost:3002/api/auth/profile', {
+    //fetch('http://localhost:3002/api/auth/profile', {
+    fetch(`${authApiBase}/profile`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
